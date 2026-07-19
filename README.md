@@ -30,6 +30,9 @@ README.md                       # This file
 - **Freehand ROI selection** – Draw polygons, rectangles, or ellipses directly on the image; only cells inside the ROI are counted.
 - **Allen brain atlas overlay** – Load and overlay coronal slices of the Allen Mouse Brain Atlas via `brainrender-napari` to localize cells anatomically.
 - **One-click segmentation** – Run the entire pipeline—load image → draw ROI → run CellPoseSAM → display results—with a single button.
+- **Per-channel colored display** – Multi-channel TIFFs are split into separate colored layers, with real channel names surfaced from file metadata when available.
+- **Full parameter control** – All 2D Cellpose `eval` parameters are exposed in the GUI for tuning.
+- **Reproducible export** – One-click bundle capturing labels, ROI, per-cell counts, and a `params.json` with every parameter, model, input hash, and software versions.
 - **Automatic output saving** – Segmentation overlays are saved as `*_cellpose_overlay.png` next to the input image.
 - **ND2 stitching support** – Load Nikon ND2 files containing multiple stage positions and automatically stitch them into a single large image (via `napari-stitcher`).
 - **3D volume segmentation** – Process Z-stack images (3D) using the `cellpose-napari` plugin with the **“process stack as 3D”** option
@@ -93,6 +96,73 @@ A file dialog will open. Select a `.tif` or `.tiff` microscopy image.
 
 6. **Save** – The overlay image is automatically saved as `original_name_cellpose_overlay.png` in the same folder.
 
+## Channel → Color Mapping
+
+**Can Napari tell you which channel is which stain?** No — Napari cannot infer biological identity (DAPI, GFP, NeuN, …) from pixel values alone. That information lives in the file's metadata, not the image data.
+
+What the GUI does instead:
+
+- **Multi-channel images are split into separate colored layers** (red, green, blue, magenta, cyan, yellow, cycled) with the blend mode set to `additive`, so you can see each channel individually and toggle it in the left layer list.
+- The **channel → color mapping is printed to the console** on load, e.g.:
+
+  ```text
+  Channel -> color mapping (napari cannot infer stain identity from pixels):
+    Channel 0 -> red colormap  (name: DAPI)
+    Channel 1 -> green colormap
+  ```
+
+- If the TIFF records **real channel names** (ImageJ `Labels`, or OME-XML `Channel@Name`), they are surfaced in the layer name and console (`[DAPI]`); otherwise a generic `Ch0 (red)` label is used.
+
+The **Channel** dropdown in the segmentation panel selects which channel Cellpose segments (single channel vs. all channels). Channel indices match the printed mapping.
+
+## Measuring Cell Diameter
+
+**Does Napari have a ruler/measure tool?** Yes — it is built in (no plugin needed):
+
+1. Select a **Shapes** layer (e.g. the `ROI` layer) so it is the active layer.
+2. Menu **Layers → Measure → Toggle shape dimensions measurement**.
+3. Draw a **line** across a representative cell. The length (in **pixels**) is shown live on the canvas; it is also stored in `layer.features` (`_perimeter` / `_area`).
+4. Type that pixel length into the **Diameter (px)** field before running segmentation.
+
+> Lengths are in **pixels** — no physical scale (µm) is set on the layer. Line = length; polygon/ellipse = area + perimeter.
+
+## Segmentation Parameters
+
+Beyond `diameter`, the panel exposes the full set of Cellpose 2D `eval` parameters for tuning and reproducibility:
+
+| Param | Meaning |
+|-------|---------|
+| `diameter` | Expected cell diameter in px (`0` = auto-estimate) |
+| `cellprob_threshold` | Lower → more ROIs (incl. dim); higher → fewer |
+| `flow_threshold` | Max allowed flow error per mask (quality filter) |
+| `normalize` | Per-image intensity normalization |
+| `min_size` | Drop masks smaller than this (px); `-1` disables |
+| `niter` | Dynamics iterations (`0` = auto from diameter) |
+| `resample` | Resample dynamics for smoother masks |
+| `augment` | Test-time augmentation (slower, sometimes better) |
+| `max_size_fraction` | Reject masks larger than this fraction of the image |
+| `tile_overlap` | Overlap fraction between tiles |
+| `batch_size` | Tiles processed per batch |
+| `stitch_threshold` | 2.5D stitching across slices (0 = off) |
+
+3D-only parameters (`do_3D`, `anisotropy`, `z_axis`, `flow3D_smooth`) are **not** exposed here — this GUI is a 2D pipeline. For true 3D, use the `cellpose-napari` plugin (see below).
+
+## Exporting Results for Reproducibility
+
+Click **Export results** (Export panel) after a run to write a timestamped bundle next to the input image: `<image>_export_<YYYYMMDD_HHMMSS>/`
+
+| File | Contents |
+|------|----------|
+| `labels.tif` | Segmentation label image, integer cell IDs preserved (re-loadable as a Labels layer) |
+| `overlay.png` | Color overlay on the input |
+| `roi.npy` / `roi.geojson` | ROI boolean mask + polygon vertices (omitted if no ROI drawn) |
+| `counts.csv` | Per-cell `label, area_px, centroid_y, centroid_x` |
+| `params.json` | **Every** Cellpose parameter used, model (`cpsam_v2`), channel, cell count, input path + **SHA-256**, and versions of `cellpose` / `napari` / `numpy` / `python` / OS |
+
+The export reflects the **last run**, not the current slider positions, so the record always matches the displayed result.
+
+> **Reproducibility note:** the bundle captures params + model + software versions + input hash, which is enough to **re-run identically and audit** a result. It is *practical* reproducibility, not bit-exact — CPU threading and library nondeterminism can shift results slightly across machines.
+
 ## 3D Segmentation via `cellpose-napari`
 
 If you have Z-stack images (3D), you can use the `cellpose-napari` plugin for 3D segmentation:
@@ -140,7 +210,7 @@ If your microscopy images are stored as Nikon ND2 files with multiple fields of 
 
 ## ROI Behavior
 
-- If an ROI is drawn, **only cells inside the ROI are counted**; pixels outside are set to background (`0`) before re-labeling.
+- If an ROI is drawn, **only cells with at least one pixel inside the ROI are counted**. Such cells are kept **whole** with their original Cellpose IDs (not sliced at the ROI border), so counts on packed tissue are accurate.
 - Multiple shapes are combined using a union to form the ROI.
 - If no ROI is drawn, the whole image is processed.
 
