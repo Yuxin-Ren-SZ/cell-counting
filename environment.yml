@@ -1,0 +1,21 @@
+name: cell-counting
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - matplotlib
+      - numpy
+      - tifffile
+      - scipy
+      - scikit-image
+      - pillow
+      - cellpose
+      - napari[all]
+      - magicgui
+      - qtpy
+      - brainrender-napari
+      - brainglobe-atlasapi
+      - cellpose-napari
+      - napari-stitcher
