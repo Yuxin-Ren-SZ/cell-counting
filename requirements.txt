@@ -4,3 +4,9 @@ tifffile
 scipy
 scikit-image
 pillow
+cellpose
+napari[all]
+magicgui
+qtpy
+brainrender-napari
+brainglobe-atlasapi
