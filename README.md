@@ -197,6 +197,6 @@ All outputs are saved in the same directory as the input image.
 - `magicgui`
 - `brainglobe-atlasapi`, `brainrender-napari` — required for atlas support
 - `tkinter` — used for file dialogs and included with most Python installations
-
+-(Optional) `cellpose-bapari`,`napari-stitcher` for 3D and stitching
 A complete list is available in `requirements.txt`.
 
