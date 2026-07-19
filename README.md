@@ -22,8 +22,8 @@ main.py                         # Command-line baseline
 tk_app.py                       # Tkinter baseline GUI
 requirements.txt                # Python dependencies
 README.md                       # This file
-
-Features
+```
+## Features
 
 CellPoseSAM integration – Uses the latest cpsam_v2 model for high‑accuracy cell segmentation, especially for clustered or overlapping cells.
 Interactive Napari GUI – Browse, zoom, and adjust layer opacity in a professional image viewer.
