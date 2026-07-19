@@ -31,6 +31,9 @@ README.md                       # This file
 - **Allen brain atlas overlay** – Load and overlay coronal slices of the Allen Mouse Brain Atlas via `brainrender-napari` to localize cells anatomically.
 - **One-click segmentation** – Run the entire pipeline—load image → draw ROI → run CellPoseSAM → display results—with a single button.
 - **Automatic output saving** – Segmentation overlays are saved as `*_cellpose_overlay.png` next to the input image.
+- **ND2 stitching support** – Load Nikon ND2 files containing multiple stage positions and automatically stitch them into a single large image (via `napari-stitcher`).
+- **3D volume segmentation** – Process Z-stack images (3D) using the `cellpose-napari` plugin with the **“process stack as 3D”** option
+- **Time‑lapse segmentation** – Segment and track cells in time‑series data using the `stitch_threshold` option in `cellpose‑napari`, enabling 2D‑to‑3D stitching across the time axis.
 
 ## Installation
 
@@ -89,6 +92,51 @@ A file dialog will open. Select a `.tif` or `.tiff` microscopy image.
    - Adjust layer opacity in the left panel to better match your image.
 
 6. **Save** – The overlay image is automatically saved as `original_name_cellpose_overlay.png` in the same folder.
+
+## 3D Segmentation via `cellpose-napari`
+
+If you have Z-stack images (3D), you can use the `cellpose-napari` plugin for 3D segmentation:
+
+1. Launch Napari and load your 3D image, such as a `.tif` Z-stack.
+
+2. Go to `Plugins → cellpose-napari` to open the plugin panel.
+
+3. In the panel, check the **“process stack as 3D”** option.
+
+4. Adjust the other parameters, such as diameter and channel, and click **Run**.
+
+5. The plugin will perform 3D segmentation and display the results as a 3D labels layer.
+
+## Time‑lapse Segmentation (via `cellpose‑napari` plugin)
+
+If you have time‑series images (4D: time + Z + Y + X, or simply a stack of 2D frames over time), you can use the `cellpose‑napari` plugin to segment and track cells across time.
+1. Load your time‑series image (e.g., a multi‑frame TIFF) into Napari.
+
+2. Open `cellpose‑napari` (`Plugins` → `cellpose‑napari`).
+   
+3. In the plugin panel, set **`stitch_threshold`** to a value greater than 0 (e.g., `0.5`). Higher values require more overlap between frames to link cells.
+   
+4. Adjust other parameters (diameter, channel, etc.) and click **“Run”**.
+
+## Stitching ND2 Images (Optional)
+
+If your microscopy images are stored as Nikon ND2 files with multiple fields of view, you can stitch them into a single large image using the `napari-stitcher` plugin.
+## Quick Guide
+
+1. **Directly stitch Napari layers:** Use Napari to load, visualize, and preposition the tiles to be stitched.
+
+2. When working with multi-channel data, follow this naming convention:  
+   `{tile} :: {channel}`
+
+3. Load either all layers or only a subset of the layers into the plugin.
+
+4. Choose the registration options, including the registration channel, binning, and other settings.
+
+5. **Stitching = registration + fusion**
+   - **Registration:** Refines the tile positions and is optional.
+   - **Fusion:** Joins the tiles into a single image.
+
+6. The registration result is displayed in the viewer, and the fused channels are added as new layers.
 
 ## ROI Behavior
 
@@ -152,9 +200,3 @@ All outputs are saved in the same directory as the input image.
 
 A complete list is available in `requirements.txt`.
 
-## Roadmap
-
-### Upcoming Features
-
-- **ND2 multi-field stitching** – Load Nikon ND2 files containing multiple stage positions and automatically stitch them into a single large image.
-- **3D volume segmentation** – Extend CellPose to process Z-stack images in 3D and provide 3D cell counting and visualization.
