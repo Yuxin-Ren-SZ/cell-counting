@@ -10,3 +10,5 @@ magicgui
 qtpy
 brainrender-napari
 brainglobe-atlasapi
+cellpose-napari
+napari-stitcher
