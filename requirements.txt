@@ -1,14 +1,12 @@
-matplotlib
+# Convenience mirror of pyproject.toml dependencies.
+# Preferred install: `pip install -e .`  (add `.[remote]` for HuggingFace remote compute)
 numpy
 tifffile
-scipy
 scikit-image
-pillow
 cellpose
 napari[all]
 magicgui
 qtpy
-brainrender-napari
-brainglobe-atlasapi
-cellpose-napari
-napari-stitcher
+nd2
+# Optional: remote compute via the HuggingFace Cellpose Space
+gradio_client

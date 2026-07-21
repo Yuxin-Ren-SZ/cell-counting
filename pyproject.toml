@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "napari-cell-counter"
+version = "0.1.0"
+description = "Cellpose cell segmentation and per-ROI counting for napari (local or HuggingFace remote compute)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "BSD-3-Clause" }
+authors = [{ name = "csadegh.lab" }]
+keywords = ["napari", "cellpose", "segmentation", "cell counting", "microscopy"]
+classifiers = [
+    "Framework :: napari",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+dependencies = [
+    "numpy",
+    "tifffile",
+    "scikit-image",
+    "magicgui",
+    "qtpy",
+    "napari>=0.4.18",
+    "cellpose",
+    "nd2",
+]
+
+[project.optional-dependencies]
+remote = ["gradio_client"]
+dev = ["pytest"]
+
+[project.entry-points."napari.manifest"]
+napari-cell-counter = "napari_cell_counter:napari.yaml"
+
+[project.scripts]
+napari-cell-counter = "napari_cell_counter.launch:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/napari_cell_counter"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/napari_cell_counter/napari.yaml" = "napari_cell_counter/napari.yaml"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

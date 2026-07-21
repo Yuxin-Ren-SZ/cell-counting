@@ -1,3 +1,19 @@
 __pycache__/
 *.py[cod]
 condaenv.*.requirements.txt
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Generated segmentation outputs
+*_overlay.png
+*_cellpose_overlay.png
+*_export_*/

@@ -1,0 +1,17 @@
+name: napari-cell-counter
+display_name: Cell Counter
+contributions:
+  commands:
+    - id: napari-cell-counter.get_reader
+      python_name: napari_cell_counter._reader:napari_get_reader
+      title: Open image (tif/tiff/nd2)
+    - id: napari-cell-counter.make_widget
+      python_name: napari_cell_counter._widget:make_cell_counter_widget
+      title: Cell Counter (Cellpose)
+  readers:
+    - command: napari-cell-counter.get_reader
+      filename_patterns: ['*.tif', '*.tiff', '*.nd2']
+      accepts_directories: false
+  widgets:
+    - command: napari-cell-counter.make_widget
+      display_name: Cell Counter

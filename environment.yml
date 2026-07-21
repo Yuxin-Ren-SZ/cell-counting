@@ -1,21 +1,27 @@
+# Conda environment for napari-cell-counter.
+#
+# Create (run from the repo root, so `pip install -e .` resolves):
+#     conda env create -f environment.yml
+#     conda activate cell-counting
+#
+# Then double-click the launcher for your OS, or run:  napari-cell-counter
 name: cell-counting
 channels:
   - conda-forge
 dependencies:
   - python=3.11
   - pip
+  # Scientific stack + napari GUI (from conda-forge)
+  - numpy
+  - scikit-image
+  - tifffile
+  - magicgui
+  - qtpy
+  - pyqt
+  - napari>=0.4.18
+  # Installed via pip (best support there)
   - pip:
-      - matplotlib
-      - numpy
-      - tifffile
-      - scipy
-      - scikit-image
-      - pillow
-      - cellpose
-      - napari[all]
-      - magicgui
-      - qtpy
-      - brainrender-napari
-      - brainglobe-atlasapi
-      - cellpose-napari
-      - napari-stitcher
+      - cellpose        # pulls in PyTorch; downloads cpsam_v2 on first local run
+      - nd2             # Nikon ND2 reading
+      - gradio_client   # HuggingFace remote-compute backend
+      - -e .            # this plugin, editable
